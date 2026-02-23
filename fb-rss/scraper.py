@@ -171,6 +171,10 @@ async def _scrape(page_name: str) -> list[dict]:
                 }
             """)
 
+            # Debug screenshot — remove once working
+            await page.screenshot(path=f"/data/debug_{page_name}.png", full_page=False)
+            logger.info(f"Screenshot saved to /data/debug_{page_name}.png")
+
             logger.info(f"Found {len(raw_posts)} raw posts for {page_name}")
 
             for rp in raw_posts:
