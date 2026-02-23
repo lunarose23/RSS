@@ -1,0 +1,7 @@
+flask==3.0.3
+feedgen==1.0.0
+apscheduler==3.10.4
+requests==2.32.3
+playwright==1.45.0
+playwright-stealth==1.0.6
+gunicorn==22.0.0

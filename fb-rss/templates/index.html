@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FB RSS Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #161920;
+    --border: #252830;
+    --border-bright: #353a45;
+    --text: #e2e4ea;
+    --muted: #6b7280;
+    --accent: #3b82f6;
+    --accent-dim: #1d3a6e;
+    --green: #10b981;
+    --green-dim: #064e3b;
+    --red: #ef4444;
+    --red-dim: #450a0a;
+    --yellow: #f59e0b;
+    --yellow-dim: #451a03;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .pulse {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pulse-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── Layout ── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* ── Section headers ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* ── Add Page Form ── */
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+
+  input::placeholder { color: var(--muted); }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: opacity 0.15s, transform 0.1s;
+    text-decoration: none;
+  }
+
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-scrape { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(59,130,246,0.2); }
+  .btn-sm { padding: 6px 11px; font-size: 11px; }
+
+  /* ── Password Row ── */
+  .password-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .password-row .form-group { flex: 0 0 260px; }
+
+  /* ── Pages Table ── */
+  .pages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .page-row {
+    background: var(--surface);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
+    transition: background 0.1s;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-row:last-child { border-bottom: none; }
+  .page-row:hover { background: #1a1d24; }
+
+  .page-info { min-width: 0; }
+
+  .page-name {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .page-slug {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .page-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .feed-url {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 380px;
+    display: inline-block;
+  }
+
+  .feed-url:hover { text-decoration: underline; }
+
+  .copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+    transition: color 0.1s;
+  }
+
+  .copy-btn:hover { color: var(--accent); }
+
+  .page-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  /* ── Status badges ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-active { background: var(--green-dim); color: var(--green); }
+  .badge-inactive { background: var(--border); color: var(--muted); }
+  .badge-error { background: var(--red-dim); color: var(--red); }
+
+  /* ── Error msg ── */
+  .error-msg {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    margin-top: 4px;
+    background: var(--red-dim);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    max-width: 340px;
+  }
+
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  #toast.toast-success { border-color: var(--green); color: var(--green); }
+  #toast.toast-error { border-color: var(--red); color: var(--red); }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* ── Next scrape ── */
+  #next-scrape {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+    .page-row { grid-template-columns: 1fr; }
+    .page-actions { justify-content: flex-end; }
+    .feed-url { max-width: 240px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">
+    <div class="logo-icon">📡</div>
+    FB RSS
+  </a>
+  <div class="header-meta">
+    <span class="pulse"><span class="pulse-dot"></span> scheduler running</span>
+    <span id="next-scrape">next scrape: calculating…</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Add Page -->
+  <div class="section-label">Track a new page</div>
+  <div class="add-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Facebook page URL or name</label>
+        <input type="text" id="input-page" placeholder="facebook.com/pagename  or  pagename"/>
+      </div>
+      <div class="form-group">
+        <label>Display name (optional)</label>
+        <input type="text" id="input-display" placeholder="My Page"/>
+      </div>
+      <button class="btn btn-primary" onclick="addPage()">+ Add Page</button>
+    </div>
+    <div class="password-row">
+      <div class="form-group">
+        <label>Admin password</label>
+        <input type="password" id="input-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') addPage()"/>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="savePassword()">Remember</button>
+    </div>
+  </div>
+
+  <!-- Pages List -->
+  <div class="section-label">Tracked pages ({{ pages|length }})</div>
+
+  {% if pages %}
+  <div class="pages-list">
+    {% for page in pages %}
+    <div class="page-row" id="row-{{ page.page_name }}">
+      <div class="page-info">
+        <div class="page-name">
+          {{ page.display_name or page.page_name }}
+          <span class="page-slug">@{{ page.page_name }}</span>
+          {% if page.error_msg %}
+            <span class="badge badge-error">⚠ error</span>
+          {% elif page.status == 'active' %}
+            <span class="badge badge-active">● active</span>
+          {% else %}
+            <span class="badge badge-inactive">○ paused</span>
+          {% endif %}
+        </div>
+        <div class="page-meta">
+          <span class="meta-item">{{ page.post_count or 0 }} posts</span>
+          {% if page.last_scraped %}
+          <span class="meta-item">last scraped {{ page.last_scraped }} UTC</span>
+          {% else %}
+          <span class="meta-item">not yet scraped</span>
+          {% endif %}
+          <span class="meta-item">
+            <a class="feed-url" href="{{ base_url }}/feeds/{{ page.page_name }}.xml" target="_blank">{{ base_url }}/feeds/{{ page.page_name }}.xml</a>
+            <button class="copy-btn" title="Copy feed URL" onclick="copyUrl('{{ base_url }}/feeds/{{ page.page_name }}.xml')">⎘</button>
+          </span>
+        </div>
+        {% if page.error_msg %}
+        <div class="error-msg">{{ page.error_msg }}</div>
+        {% endif %}
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-scrape btn-sm" onclick="forceScrape('{{ page.page_name }}', this)">↻ Scrape now</button>
+        <button class="btn btn-ghost btn-sm" onclick="togglePage('{{ page.page_name }}', this)">
+          {% if page.status == 'active' %}⏸ Pause{% else %}▶ Resume{% endif %}
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deletePage('{{ page.page_name }}')">✕</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon">📭</div>
+    No pages tracked yet. Add one above to get started.
+  </div>
+  {% endif %}
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+  // ── Password memory ──
+  const PW_KEY = 'fbrss_pw';
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(PW_KEY);
+    if (saved) document.getElementById('input-password').value = saved;
+    updateNextScrape();
+    setInterval(updateNextScrape, 10000);
+  });
+
+  function savePassword() {
+    const pw = document.getElementById('input-password').value;
+    if (pw) { localStorage.setItem(PW_KEY, pw); toast('Password remembered in this browser', 'success'); }
+  }
+
+  function getPassword() { return document.getElementById('input-password').value; }
+
+  // ── Toast ──
+  let toastTimer;
+  function toast(msg, type = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show toast-${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+  }
+
+  // ── Copy URL ──
+  function copyUrl(url) {
+    navigator.clipboard.writeText(url).then(() => toast('Feed URL copied!', 'success'));
+  }
+
+  // ── Next scrape countdown ──
+  function updateNextScrape() {
+    // Rough 30-min cycle countdown
+    const now = new Date();
+    const mins = 30 - (now.getMinutes() % 30);
+    const secs = 60 - now.getSeconds();
+    const display = secs === 60
+      ? `next scrape: ${mins}m`
+      : `next scrape: ${mins > 0 ? mins - 1 + 'm ' : ''}${secs}s`;
+    document.getElementById('next-scrape').textContent = display;
+  }
+
+  // ── Add Page ──
+  async function addPage() {
+    const page = document.getElementById('input-page').value.trim();
+    const display = document.getElementById('input-display').value.trim();
+    const pw = getPassword();
+    if (!page) { toast('Enter a page name or URL', 'error'); return; }
+    if (!pw) { toast('Enter your admin password', 'error'); return; }
+
+    try {
+      const r = await fetch('/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page_name: page, display_name: display, password: pw })
+      });
+      const data = await r.json();
+      if (!r.ok) { toast(data.error || 'Error', 'error'); return; }
+      toast(`Added ${data.page_name}! Scraping now…`, 'success');
+      document.getElementById('input-page').value = '';
+      document.getElementById('input-display').value = '';
+      setTimeout(() => location.reload(), 1500);
+    } catch(e) { toast('Network error', 'error'); }
+  }
+
+  // ── Delete Page ──
+  async function deletePage(pageName) {
+    if (!confirm(`Remove @${pageName} and all its posts?`)) return;
+    const pw = getPassword();
+    if (!pw) { toast('Enter your admin password', 'error'); return; }
+    try {
+      const r = await fetch(`/api/pages/${pageName}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await r.json();
+      if (!r.ok) { toast(data.error || 'Error', 'error'); return; }
+      document.getElementById(`row-${pageName}`)?.remove();
+      toast(`Removed @${pageName}`, 'success');
+    } catch(e) { toast('Network error', 'error'); }
+  }
+
+  // ── Force Scrape ──
+  async function forceScrape(pageName, btn) {
+    const pw = getPassword();
+    if (!pw) { toast('Enter your admin password', 'error'); return; }
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner"></span> Scraping…';
+    btn.disabled = true;
+    try {
+      const r = await fetch(`/api/pages/${pageName}/scrape`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await r.json();
+      if (!r.ok) { toast(data.error || 'Error', 'error'); }
+      else { toast(`Scraping ${pageName}…`, 'success'); }
+    } catch(e) { toast('Network error', 'error'); }
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+    setTimeout(() => location.reload(), 8000);
+  }
+
+  // ── Toggle Active/Paused ──
+  async function togglePage(pageName, btn) {
+    const pw = getPassword();
+    if (!pw) { toast('Enter your admin password', 'error'); return; }
+    try {
+      const r = await fetch(`/api/pages/${pageName}/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await r.json();
+      if (!r.ok) { toast(data.error || 'Error', 'error'); return; }
+      btn.textContent = data.status === 'active' ? '⏸ Pause' : '▶ Resume';
+      toast(`${pageName} is now ${data.status}`, 'success');
+      setTimeout(() => location.reload(), 1000);
+    } catch(e) { toast('Network error', 'error'); }
+  }
+</script>
+</body>
+</html>
