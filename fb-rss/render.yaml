@@ -1,18 +1,15 @@
 services:
   - type: web
-    name: fb-rss
+    name: rss
     runtime: python
-    plan: starter  # $7/mo for persistent disk; free tier has no disk persistence
-    buildCommand: |
-      pip install -r requirements.txt
-      playwright install chromium
-      playwright install-deps chromium
-    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: playwright install chromium && playwright install-deps chromium && gunicorn app:app --workers 1 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT
     envVars:
       - key: ADMIN_PASSWORD
         sync: false        # Set this in Render dashboard — never commit it
       - key: BASE_URL
-        sync: false        # Set to your Render app URL e.g. https://fb-rss.onrender.com
+        sync: false        # Set to your Render app URL e.g. https://rss-ez6l.onrender.com
       - key: SECRET_KEY
         generateValue: true
       - key: DB_PATH
@@ -24,5 +21,5 @@ services:
     disk:
       name: fb-rss-data
       mountPath: /data
-      sizeGB: 1            # 1GB is plenty for SQLite + images of 7 days of posts
+      sizeGB: 1
     healthCheckPath: /
