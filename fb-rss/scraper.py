@@ -59,8 +59,8 @@ async def _scrape(page_name: str) -> list[dict]:
         try:
             url = f"https://www.facebook.com/{page_name}"
             logger.info(f"Navigating to {url}")
-            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            await page.wait_for_timeout(4000)
+            await page.goto(url, wait_until="networkidle", timeout=60000)
+            await page.wait_for_timeout(8000)
 
             # Dismiss cookie/login dialogs if present
             for selector in [
