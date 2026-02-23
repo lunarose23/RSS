@@ -193,14 +193,12 @@ async def _scrape(page_name: str) -> list[dict]:
 def scrape_facebook_page(page_name: str) -> list[dict]:
     """Synchronous wrapper around async scraper."""
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                future = pool.submit(asyncio.run, _scrape(page_name))
-                return future.result(timeout=120)
-        else:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
             return loop.run_until_complete(_scrape(page_name))
+        finally:
+            loop.close()
     except Exception as e:
         logger.error(f"scrape_facebook_page error: {e}")
         return []
