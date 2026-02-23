@@ -243,6 +243,10 @@ def serve_feed(page_name):
 def serve_image(filename):
     return send_from_directory(IMAGES_DIR, filename)
 
+@app.route("/debug/<filename>")
+def debug_image(filename):
+    return send_from_directory("/data", filename)
+
 # ── API ───────────────────────────────────────────────────────────────────────
 
 def check_auth(data):
