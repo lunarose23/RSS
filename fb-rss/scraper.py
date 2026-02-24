@@ -2,18 +2,11 @@
 Facebook page scraper using Playwright.
 Returns list of post dicts: {post_id, text, post_url, images, post_date}
 """
-import re
 import logging
 import asyncio
 from playwright.async_api import async_playwright
 
 logger = logging.getLogger(__name__)
-
-# CSS selectors — Facebook changes these periodically, update as needed
-POST_CONTAINER_SELECTORS = [
-    '[data-pagelet^="FeedUnit"]',
-    '[role="article"]',
-]
 
 async def _scrape(page_name: str) -> list[dict]:
     posts = []
@@ -64,7 +57,7 @@ async def _scrape(page_name: str) -> list[dict]:
             except Exception:
                 pass  # Take screenshot regardless of timeout
             await page.wait_for_timeout(3000)
-            
+
             # Dump HTML for debugging
             html_content = await page.content()
             with open(f"/tmp/debug_{page_name}.html", "w") as f:
@@ -78,12 +71,30 @@ async def _scrape(page_name: str) -> list[dict]:
                 '[data-cookiebanner="accept_button"]',
                 'button:has-text("Accept All")',
                 'button:has-text("Only allow essential cookies")',
+                '[aria-label="Close"]',
+                'div[aria-label="Close"]',
             ]:
                 try:
                     btn = page.locator(selector).first
                     if await btn.is_visible(timeout=2000):
                         await btn.click()
                         await page.wait_for_timeout(1500)
+                        break
+                except Exception:
+                    pass
+
+            # Close the "See more" login modal specifically
+            for close_selector in [
+                '[aria-label="Close"]',
+                'div[role="dialog"] svg[aria-label="Close"]',
+                'div[role="dialog"] div[aria-label="Close"]',
+            ]:
+                try:
+                    btn = page.locator(close_selector).first
+                    if await btn.is_visible(timeout=2000):
+                        await btn.click()
+                        logger.info(f"Closed modal with: {close_selector}")
+                        await page.wait_for_timeout(2000)
                         break
                 except Exception:
                     pass
@@ -181,9 +192,8 @@ async def _scrape(page_name: str) -> list[dict]:
                 }
             """)
 
-            # Debug screenshot — remove once working
-            await page.screenshot(path=f"/tmp/debug_{page_name}.png", full_page=False)
-
+            # Debug screenshot
+            await page.screenshot(path=f"/data/debug_{page_name}.png", full_page=False)
             logger.info(f"Screenshot saved to /data/debug_{page_name}.png")
 
             logger.info(f"Found {len(raw_posts)} raw posts for {page_name}")
