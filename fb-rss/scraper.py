@@ -193,8 +193,11 @@ async def _scrape(page_name: str) -> list[dict]:
             """)
 
             # Debug screenshot
-            await page.screenshot(path=f"/data/debug_{page_name}.png", full_page=False)
-            logger.info(f"Screenshot saved to /data/debug_{page_name}.png")
+            try:
+                await page.screenshot(path=f"/data/debug_{page_name}.png", full_page=False)
+                logger.info(f"Screenshot saved to /data/debug_{page_name}.png")
+            except Exception as ss_err:
+                logger.warning(f"Screenshot failed: {ss_err}")
 
             logger.info(f"Found {len(raw_posts)} raw posts for {page_name}")
 
