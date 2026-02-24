@@ -202,8 +202,8 @@ async def _scrape(page_name: str) -> list[dict]:
 
             # Debug screenshot
             try:
-                await page.screenshot(path=f"/data/debug_{page_name}.png", full_page=False)
-                logger.info(f"Screenshot saved to /data/debug_{page_name}.png")
+                await page.screenshot(path=f"/tmp/debug_{page_name}.png", full_page=False)
+                logger.info(f"Screenshot saved to /tmp/debug_{page_name}.png")
             except Exception as ss_err:
                 logger.warning(f"Screenshot failed: {ss_err}")
 
