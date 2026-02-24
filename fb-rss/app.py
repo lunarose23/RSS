@@ -245,7 +245,7 @@ def serve_image(filename):
 
 @app.route("/debug/<filename>")
 def debug_image(filename):
-    return send_from_directory("/data", filename)
+    return send_from_directory("/tmp", filename)
 
 @app.route("/debug/html/<filename>")
 def debug_html(filename):
