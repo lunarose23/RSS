@@ -84,20 +84,28 @@ async def _scrape(page_name: str) -> list[dict]:
                     pass
 
             # Close the "See more" login modal specifically
-            for close_selector in [
-                '[aria-label="Close"]',
-                'div[role="dialog"] svg[aria-label="Close"]',
-                'div[role="dialog"] div[aria-label="Close"]',
-            ]:
+            await page.wait_for_timeout(2000)
+            for attempt in range(3):
                 try:
-                    btn = page.locator(close_selector).first
-                    if await btn.is_visible(timeout=2000):
-                        await btn.click()
-                        logger.info(f"Closed modal with: {close_selector}")
+                    # Try clicking any close button via JavaScript directly
+                    closed = await page.evaluate("""
+                        () => {
+                            const btns = [...document.querySelectorAll('[aria-label="Close"][role="button"]')];
+                            if (btns.length > 0) {
+                                btns[0].click();
+                                return true;
+                            }
+                            return false;
+                        }
+                    """)
+                    if closed:
+                        logger.info(f"Closed modal via JS click (attempt {attempt+1})")
                         await page.wait_for_timeout(2000)
+                    else:
                         break
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Modal close attempt {attempt+1} failed: {e}")
+                    break
 
             # Scroll to load more posts
             for _ in range(3):
